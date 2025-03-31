@@ -1,6 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { MaterialIcon } from "@/components/icons";
-import { Device } from "@/lib/types";
+import { Device, MediaItem } from "@/lib/types";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface DeviceInfoPanelProps {
   device?: Device;
@@ -46,6 +47,8 @@ export default function DeviceInfoPanel({ device, isLoading }: DeviceInfoPanelPr
     issue: string;
     solutions: string[];
   }>;
+  
+  const mediaItems = device.mediaItems || [];
 
   return (
     <div className="w-full h-full overflow-y-auto md:border-r border-neutral-100">
@@ -130,6 +133,59 @@ export default function DeviceInfoPanel({ device, isLoading }: DeviceInfoPanelPr
             ))}
           </div>
         </div>
+        
+        {/* Media Gallery */}
+        {mediaItems.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-3">Media Gallery</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {mediaItems.map((media, index) => (
+                <div key={index} className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
+                  <div className="w-full">
+                    {media.type === 'image' || media.type === 'diagram' ? (
+                      <div className="relative w-full">
+                        <AspectRatio ratio={16 / 9}>
+                          <img 
+                            src={media.url} 
+                            alt={media.title}
+                            className="object-cover w-full h-full rounded-t-lg"
+                          />
+                        </AspectRatio>
+                      </div>
+                    ) : media.type === 'pdf' ? (
+                      <div className="flex items-center justify-center bg-gray-100 h-32">
+                        <MaterialIcon name="picture_as_pdf" className="text-4xl text-red-500" />
+                      </div>
+                    ) : media.type === 'video' ? (
+                      <div className="relative w-full">
+                        <AspectRatio ratio={16 / 9}>
+                          <div className="flex items-center justify-center bg-gray-100 w-full h-full">
+                            <MaterialIcon name="videocam" className="text-4xl text-blue-500" />
+                          </div>
+                        </AspectRatio>
+                      </div>
+                    ) : null}
+                  </div>
+                  
+                  <div className="p-3">
+                    <h4 className="font-medium text-sm">{media.title}</h4>
+                    {media.description && (
+                      <p className="text-xs text-gray-600 mt-1">{media.description}</p>
+                    )}
+                    {media.relatedSection && (
+                      <div className="mt-2">
+                        <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                          {media.relatedSection}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -26,6 +26,7 @@ export const devices = pgTable("devices", {
   safetyRequirements: json("safety_requirements").notNull(),
   usageInstructions: json("usage_instructions").notNull(),
   troubleshooting: json("troubleshooting").notNull(),
+  mediaItems: json("media_items").default('[]').notNull(),
 });
 
 export const insertDeviceSchema = createInsertSchema(devices).pick({
@@ -38,6 +39,7 @@ export const insertDeviceSchema = createInsertSchema(devices).pick({
   safetyRequirements: true,
   usageInstructions: true,
   troubleshooting: true,
+  mediaItems: true,
 });
 
 // Define chat messages

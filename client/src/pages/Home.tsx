@@ -83,8 +83,8 @@ export default function Home() {
                     <Card className="border border-neutral-200 hover:border-primary hover:shadow-md transition-all cursor-pointer">
                       <CardContent className="p-6">
                         <div className="flex items-start">
-                          <div className="p-3 bg-primary bg-opacity-20 rounded-full">
-                            <MaterialIcon name={category.icon} className="text-primary text-2xl" />
+                          <div className="p-3 bg-blue-100 rounded-full">
+                            <MaterialIcon name={category.icon} className="text-primary text-2xl" fallback="category" />
                           </div>
                           <div className="ml-4">
                             <h3 className="font-medium text-lg">{category.name}</h3>

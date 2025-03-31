@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { createDevice, updateDevice } from "@/lib/api";
-import { Device, DeviceCategory } from "@/lib/types";
+import { Device, DeviceCategory, MediaItem } from "@/lib/types";
 import { 
   Card, 
   CardContent, 
@@ -66,6 +66,20 @@ const troubleshootingItemSchema = z.object({
   solutions: z.array(z.string().min(1, "Solution is required")).min(1, "At least one solution is required")
 });
 
+// Create the media item schema
+const mediaItemSchema = z.object({
+  id: z.string().optional().default(() => crypto.randomUUID()),
+  title: z.string().min(1, "Media title is required"),
+  description: z.string().optional(),
+  url: z.string().url("Please enter a valid URL"),
+  type: z.enum(['image', 'diagram', 'pdf', 'video'], {
+    required_error: "Media type is required",
+    invalid_type_error: "Media type must be one of: image, diagram, pdf, or video"
+  }),
+  relatedSection: z.enum(['specifications', 'materials', 'safetyRequirements', 'usageInstructions', 'troubleshooting']).optional(),
+  relatedInstructionIndex: z.number().optional()
+});
+
 // Create a device schema for validation
 const deviceFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -77,6 +91,7 @@ const deviceFormSchema = z.object({
   safetyRequirements: z.array(z.string().min(1, "Safety requirement is required")).min(1, "At least one safety requirement is required"),
   usageInstructions: z.array(usageInstructionSchema).min(1, "At least one usage instruction is required"),
   troubleshooting: z.array(troubleshootingItemSchema).min(1, "At least one troubleshooting item is required"),
+  mediaItems: z.array(mediaItemSchema).optional().default([]),
 });
 
 type DeviceFormValues = z.infer<typeof deviceFormSchema>;
@@ -157,6 +172,7 @@ export default function DeviceEditor({
       safetyRequirements: device?.safetyRequirements as string[] || [""],
       usageInstructions: device?.usageInstructions as { title: string, description: string }[] || [{ title: "", description: "" }],
       troubleshooting: convertTroubleshootingToFormArray(device?.troubleshooting),
+      mediaItems: device?.mediaItems || [],
     },
   });
 
@@ -205,6 +221,15 @@ export default function DeviceEditor({
   } = useFieldArray({
     control: form.control,
     name: "troubleshooting"
+  });
+  
+  const {
+    fields: mediaFields,
+    append: appendMedia,
+    remove: removeMedia
+  } = useFieldArray({
+    control: form.control,
+    name: "mediaItems"
   });
 
   // Dynamic field array for troubleshooting solutions
@@ -325,12 +350,13 @@ export default function DeviceEditor({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-5 mb-4">
+              <TabsList className="grid grid-cols-6 mb-4">
                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
                 <TabsTrigger value="specs">Specifications</TabsTrigger>
                 <TabsTrigger value="safety">Safety</TabsTrigger>
                 <TabsTrigger value="usage">Usage</TabsTrigger>
                 <TabsTrigger value="troubleshooting">Troubleshooting</TabsTrigger>
+                <TabsTrigger value="media">Media</TabsTrigger>
               </TabsList>
 
               {/* Basic Info */}
@@ -759,6 +785,154 @@ export default function DeviceEditor({
                 >
                   <MaterialIcon name="add" className="h-4 w-4 mr-2" />
                   Add Issue
+                </Button>
+              </TabsContent>
+              
+              {/* Media Gallery */}
+              <TabsContent value="media" className="space-y-4">
+                <h3 className="text-lg font-medium mb-2">Media Gallery</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add diagrams, images and other media to help illustrate device usage and features.
+                </p>
+                
+                {mediaFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-md mb-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="font-medium">Media Item {index + 1}</h4>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => removeMedia(index)}
+                        className="h-8 px-2"
+                      >
+                        <MaterialIcon name="delete" className="h-4 w-4 mr-1" />
+                        Remove
+                      </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <FormField
+                        control={form.control}
+                        name={`mediaItems.${index}.title`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Title</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g., Cutting Diagram" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name={`mediaItems.${index}.url`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Media URL</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://example.com/image.jpg" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name={`mediaItems.${index}.description`}
+                      render={({ field }) => (
+                        <FormItem className="mb-4">
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Brief description of this media item" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name={`mediaItems.${index}.type`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Media Type</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select media type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="image">Image</SelectItem>
+                                <SelectItem value="diagram">Diagram</SelectItem>
+                                <SelectItem value="pdf">PDF Document</SelectItem>
+                                <SelectItem value="video">Video</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name={`mediaItems.${index}.relatedSection`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Related Section</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select related section (optional)" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="specifications">Specifications</SelectItem>
+                                <SelectItem value="materials">Materials</SelectItem>
+                                <SelectItem value="safetyRequirements">Safety Requirements</SelectItem>
+                                <SelectItem value="usageInstructions">Usage Instructions</SelectItem>
+                                <SelectItem value="troubleshooting">Troubleshooting</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              Optionally specify which section this media relates to
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                ))}
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => appendMedia({
+                    id: crypto.randomUUID(),
+                    title: "",
+                    description: "",
+                    url: "",
+                    type: "image"
+                  })}
+                >
+                  <MaterialIcon name="add" className="h-4 w-4 mr-2" />
+                  Add Media Item
                 </Button>
               </TabsContent>
             </Tabs>
