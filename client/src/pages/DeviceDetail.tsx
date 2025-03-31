@@ -103,9 +103,9 @@ export default function DeviceDetail() {
         </div>
 
         {/* Device Information and Chat Area */}
-        <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Device Information Panel - Hidden on mobile when chat is active */}
-          <div className={`${showChat ? 'hidden' : 'flex'} md:flex md:w-1/2 lg:w-3/5`}>
+          <div className={`${showChat ? 'hidden' : 'flex flex-1 h-full'} md:flex md:w-1/2 lg:w-3/5`}>
             <DeviceInfoPanel 
               device={device} 
               isLoading={isLoadingDevice} 
@@ -113,7 +113,7 @@ export default function DeviceDetail() {
           </div>
           
           {/* Chat Interface - Hidden on mobile when info is active */}
-          <div className={`${!showChat ? 'hidden' : 'flex'} md:flex md:w-1/2 lg:w-2/5 flex-1`}>
+          <div className={`${!showChat ? 'hidden' : 'flex flex-1 h-full'} md:flex md:w-1/2 lg:w-2/5`}>
             <ChatInterface 
               device={device}
               messages={messages || []}

@@ -10,7 +10,7 @@ interface DeviceInfoPanelProps {
 export default function DeviceInfoPanel({ device, isLoading }: DeviceInfoPanelProps) {
   if (isLoading) {
     return (
-      <div className="w-full overflow-y-auto md:border-r border-neutral-100 p-6">
+      <div className="w-full h-full overflow-y-auto md:border-r border-neutral-100 p-6">
         <div className="flex items-center mb-4">
           <Skeleton className="h-12 w-12 rounded-full" />
           <Skeleton className="h-8 w-64 ml-3" />
@@ -25,7 +25,7 @@ export default function DeviceInfoPanel({ device, isLoading }: DeviceInfoPanelPr
 
   if (!device) {
     return (
-      <div className="w-full overflow-y-auto md:border-r border-neutral-100 p-6 flex items-center justify-center">
+      <div className="w-full h-full overflow-y-auto md:border-r border-neutral-100 p-6 flex items-center justify-center">
         <div className="text-center text-neutral-500">
           <MaterialIcon name="error_outline" className="text-4xl mb-2" />
           <p>Device information not available</p>
@@ -48,7 +48,7 @@ export default function DeviceInfoPanel({ device, isLoading }: DeviceInfoPanelPr
   }>;
 
   return (
-    <div className="w-full overflow-y-auto md:border-r border-neutral-100">
+    <div className="w-full h-full overflow-y-auto md:border-r border-neutral-100">
       <div className="p-6 max-w-3xl mx-auto">
         <div className="flex items-center mb-4">
           <span className="material-icons text-primary p-2 bg-primary bg-opacity-20 rounded-full">

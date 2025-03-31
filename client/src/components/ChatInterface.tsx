@@ -27,12 +27,12 @@ export default function ChatInterface({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages change or when loading/sending state changes
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, isSending, isLoading]);
 
   const handleSendMessage = async () => {
     if (!message.trim() || isSending) return;
@@ -94,7 +94,7 @@ export default function ChatInterface({
   
   // Render the main chat interface
   return (
-    <div className="w-full flex flex-col h-full">
+    <div className="w-full flex flex-col h-full overflow-hidden">
       <div className="p-4 bg-white border-b border-neutral-100 flex items-center">
         <div className="flex-1">
           <h3 className="font-medium">{device.name} Assistant</h3>
@@ -111,7 +111,7 @@ export default function ChatInterface({
       </div>
       
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 bg-neutral-50" id="chat-messages">
+      <div className="flex-1 overflow-y-auto p-4 bg-neutral-50 h-full relative" id="chat-messages">
         {isLoading ? (
           // Loading skeletons
           Array.from({ length: 3 }).map((_, index) => (
