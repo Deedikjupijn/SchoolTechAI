@@ -131,7 +131,7 @@ export class MemStorage implements IStorage {
     // Create a default admin user with known credentials
     await this.createUser({
       username: "admin",
-      password: await hashPassword("admin123"),
+      password: await hashPassword("M3t@lW0rks2024!Secure#Admin"),
       displayName: "Workshop Administrator",
       isAdmin: true
     });
