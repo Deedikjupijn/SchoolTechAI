@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { MaterialIcon } from "@/components/icons";
 import { Device, ChatMessage } from "@/lib/types";
+import ReactMarkdown from "react-markdown";
 
 interface ChatInterfaceProps {
   device?: Device;
@@ -164,8 +165,12 @@ export default function ChatInterface({
                   <p className="text-sm font-medium text-neutral-600 mb-1">
                     {msg.isUser ? "You" : `${device.name} Assistant`}
                   </p>
-                  <div style={{ whiteSpace: 'pre-wrap' }}>
-                    {msg.message}
+                  <div className="prose prose-sm max-w-none">
+                    {msg.isUser ? (
+                      <div style={{ whiteSpace: 'pre-wrap' }}>{msg.message}</div>
+                    ) : (
+                      <ReactMarkdown>{msg.message}</ReactMarkdown>
+                    )}
                   </div>
                 </div>
                 {msg.isUser && (
@@ -221,26 +226,6 @@ export default function ChatInterface({
         </div>
         <div className="flex justify-between mt-2 text-xs text-neutral-500">
           <span>Powered by Gemini</span>
-          <style jsx>{`
-            .typing {
-              display: flex;
-              align-items: center;
-            }
-            .dot {
-              margin: 0 2px;
-              width: 8px;
-              height: 8px;
-              border-radius: 50%;
-              opacity: 0.6;
-              animation: bounce 1.4s infinite ease-in-out both;
-            }
-            .dot:nth-child(1) { animation-delay: -0.32s; }
-            .dot:nth-child(2) { animation-delay: -0.16s; }
-            @keyframes bounce {
-              0%, 80%, 100% { transform: scale(0); }
-              40% { transform: scale(1.0); }
-            }
-          `}</style>
         </div>
       </div>
     </div>
