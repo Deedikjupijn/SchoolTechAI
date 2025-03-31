@@ -6,9 +6,13 @@ class GeminiService {
 
   constructor() {
     const apiKey = process.env.GEMINI_API_KEY || "";
+    
+    console.log("Environment variables:", JSON.stringify(process.env));
+    
     if (!apiKey) {
       console.warn("GEMINI_API_KEY not set. AI functionality will not work properly.");
     } else {
+      console.log("Initializing Gemini API with key:", apiKey.substring(0, 4) + "..." + apiKey.substring(apiKey.length - 4));
       this.api = new GoogleGenerativeAI(apiKey);
     }
   }
