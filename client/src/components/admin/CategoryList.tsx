@@ -1,74 +1,37 @@
 import { useQuery } from "@tanstack/react-query";
+import { fetchDeviceCategories } from "@/lib/api";
 import { DeviceCategory } from "@/lib/types";
-import { 
-  Card, 
-  CardContent
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { MaterialIcon } from "@/components/icons";
-import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface CategoryListProps {
   onSelect: (category: DeviceCategory) => void;
 }
 
 export default function CategoryList({ onSelect }: CategoryListProps) {
-  const { toast } = useToast();
-  
-  // Get all categories
-  const { data: categories, isLoading, error } = useQuery<DeviceCategory[]>({
-    queryKey: ["/api/device-categories"],
+  // Fetch all categories
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ["/api/categories"],
+    queryFn: fetchDeviceCategories,
   });
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex justify-center">
-            <MaterialIcon name="hourglass_empty" className="h-12 w-12 animate-spin text-primary" />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
-  if (error || !categories) {
+  if (!categories || categories.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center">
-            <MaterialIcon name="error" className="h-12 w-12 text-destructive mx-auto mb-2" />
-            <h3 className="text-lg font-medium mb-2">Failed to Load Categories</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {error ? error.message : "An unexpected error occurred."}
-            </p>
-            <Button 
-              variant="outline" 
-              className="mx-auto"
-              onClick={() => window.location.reload()}
-            >
-              <MaterialIcon name="refresh" className="mr-2 h-4 w-4" />
-              Retry
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (categories && categories.length === 0) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center">
-            <MaterialIcon name="category" className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-            <h3 className="text-lg font-medium mb-2">No Categories Found</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Create a new category to get started
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center p-8">
+        <h3 className="text-xl font-medium">No Categories</h3>
+        <p className="text-muted-foreground mt-2">
+          No device categories have been added yet.
+        </p>
+      </div>
     );
   }
 

@@ -60,17 +60,17 @@ export default function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           disabled={!user.isAdmin}
-          onClick={() => {
-            if (user.isAdmin) {
-              window.location.href = "/admin";
-            }
-          }}
+          asChild
         >
-          <MaterialIcon name="admin_panel_settings" className="mr-2 h-4 w-4" />
-          <span>Admin Dashboard</span>
-          {!user.isAdmin && (
-            <span className="ml-auto text-xs text-muted-foreground">Admin only</span>
-          )}
+          <Link to="/admin">
+            <div className="flex items-center w-full">
+              <MaterialIcon name="admin_panel_settings" className="mr-2 h-4 w-4" />
+              <span>Admin Dashboard</span>
+              {!user.isAdmin && (
+                <span className="ml-auto text-xs text-muted-foreground">Admin only</span>
+              )}
+            </div>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={handleLogout}

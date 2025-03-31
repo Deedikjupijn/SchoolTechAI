@@ -18,7 +18,7 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <Route path="/categories/:categoryId" component={DeviceCategory} />
       <Route path="/devices/:deviceId" component={DeviceDetail} />
-      <Route path="/admin" component={AdminDashboard} />
+      <ProtectedRoute path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

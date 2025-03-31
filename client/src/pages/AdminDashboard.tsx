@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
-import { Redirect } from "wouter";
+import { Redirect, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MaterialIcon } from "@/components/icons";
@@ -12,9 +12,9 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import DeviceList from "@/components/admin/DeviceList";
-import DeviceEditor from "@/components/admin/DeviceEditor";
-import CategoryList from "@/components/admin/CategoryList";
+import DeviceList from "../components/admin/DeviceList";
+import DeviceEditor from "../components/admin/DeviceEditor";
+import CategoryList from "../components/admin/CategoryList";
 import { DeviceCategory, Device } from "@/lib/types";
 
 export default function AdminDashboard() {
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full">
-              <a href="/">Return to Home</a>
+              <Link to="/">Return to Home</Link>
             </Button>
           </CardContent>
         </Card>
