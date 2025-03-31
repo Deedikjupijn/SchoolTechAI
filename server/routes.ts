@@ -9,6 +9,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { Readable } from "stream";
 
 // ESM modules don't have __dirname, so we need to create it
 const __filename = fileURLToPath(import.meta.url);
@@ -196,6 +197,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Chat error:", error);
       res.status(500).json({ 
         message: "Failed to process chat message",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Add a new route for streaming AI responses
+  app.get("/api/devices/:deviceId/chat/stream", async (req, res) => {
+    try {
+      const deviceId = parseInt(req.params.deviceId);
+      if (isNaN(deviceId)) {
+        return res.status(400).json({ message: "Invalid device ID" });
+      }
+
+      // Validate the query parameter for the message
+      const message = req.query.message as string;
+      if (!message || message.trim().length === 0) {
+        return res.status(400).json({ message: "Message query parameter is required" });
+      }
+
+      // Get device information to provide context to Gemini
+      const device = await storage.getDevice(deviceId);
+      if (!device) {
+        return res.status(404).json({ message: "Device not found" });
+      }
+
+      // Set headers for SSE
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      // Simulate streaming response from Gemini
+      const aiResponseStream = geminiService.getChatResponseStream(device, message);
+
+      // Stream the response chunk by chunk
+      aiResponseStream.on("data", (chunk: string) => {
+        res.write(`data: ${chunk}\n\n`); // Send each chunk as an SSE event
+      });
+
+      aiResponseStream.on("end", () => {
+        res.write("data: [DONE]\n\n"); // Signal the end of the stream
+        res.end();
+      });
+
+      aiResponseStream.on("error", (error: Error) => {
+        console.error("Streaming error:", error);
+        res.write("data: [ERROR]\n\n");
+        res.end();
+      });
+    } catch (error) {
+      console.error("Streaming chat error:", error);
+      res.status(500).json({ 
+        message: "Failed to process streaming chat message",
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }

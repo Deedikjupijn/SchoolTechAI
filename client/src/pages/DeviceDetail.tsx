@@ -65,6 +65,36 @@ export default function DeviceDetail() {
     }
   };
 
+  useEffect(() => {
+    if (deviceId) {
+      const message = "Hello, AI!";
+      const eventSource = new EventSource(`/api/devices/${deviceId}/chat/stream?message=${encodeURIComponent(message)}`);
+
+      eventSource.onmessage = (event) => {
+        if (event.data === "[DONE]") {
+          console.log("Stream finished");
+          eventSource.close();
+        } else {
+          console.log("Received chunk:", event.data);
+          // Append the chunk to the UI
+          const responseElement = document.getElementById("response");
+          if (responseElement) {
+            responseElement.innerText += event.data;
+          }
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("Streaming error:", error);
+        eventSource.close();
+      };
+
+      return () => {
+        eventSource.close();
+      };
+    }
+  }, [deviceId]);
+
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
       {/* Sidebar for desktop */}
