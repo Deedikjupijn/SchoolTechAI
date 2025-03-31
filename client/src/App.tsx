@@ -10,6 +10,7 @@ import AuthPage from "@/pages/auth-page";
 import AdminDashboard from "@/pages/AdminDashboard";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
+import MainNavbar from "@/components/MainNavbar";
 
 function Router() {
   return (
@@ -28,7 +29,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router />
+        <div className="min-h-screen flex flex-col">
+          <MainNavbar />
+          <main className="flex-1">
+            <Router />
+          </main>
+        </div>
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
