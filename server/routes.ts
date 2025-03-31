@@ -1,14 +1,59 @@
-import type { Express, Request, Response } from "express";
+import express, { type Express, type Request, type Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
 import { geminiService } from "./geminiService";
 import { setupAuth } from "./auth";
 import { insertDeviceSchema, insertDeviceCategorySchema } from "@shared/schema";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+// ESM modules don't have __dirname, so we need to create it
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Set up storage for uploaded files
+const uploadDir = path.join(__dirname, "../uploads");
+
+// Create uploads directory if it doesn't exist
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage2 = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // Create a unique filename using timestamp and original extension
+    const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    cb(null, uniquePrefix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage2,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max file size
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept only images
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed!") as any, false);
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
+  
+  // Serve uploaded files from the /uploads directory
+  app.use("/uploads", express.static(uploadDir));
   
   // Get all device categories
   app.get("/api/device-categories", async (req, res) => {
@@ -69,12 +114,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Send a message to the AI assistant
+  // Upload an image
+  app.post("/api/upload", upload.single("image"), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      // Return the URL to the uploaded image
+      const imageUrl = `/uploads/${req.file.filename}`;
+      res.json({ imageUrl });
+    } catch (error) {
+      console.error("Image upload error:", error);
+      res.status(500).json({ 
+        message: "Failed to upload image",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Send a message to the AI assistant (with optional image)
   app.post("/api/devices/:deviceId/chat", async (req, res) => {
     try {
       // Validate request body
       const schema = z.object({
         message: z.string().min(1),
+        imageUrl: z.string().optional(),
       });
       
       const result = schema.safeParse(req.body);
@@ -99,11 +164,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isUser: true,
         message: result.data.message,
         timestamp: new Date().toISOString(),
+        imageUrl: result.data.imageUrl,
       };
       await storage.createChatMessage(userMessage);
 
+      // Create prompt with image reference if provided
+      let prompt = result.data.message;
+      if (result.data.imageUrl) {
+        prompt += `\n\nNote: The user has attached an image to this message which is available at: ${result.data.imageUrl}\n`
+        + "Please analyze the image and provide feedback based on the visual content.";
+      }
+
       // Get response from Gemini
-      const aiResponse = await geminiService.getChatResponse(device, result.data.message);
+      const aiResponse = await geminiService.getChatResponse(device, prompt);
 
       // Save AI response
       const aiMessage = {

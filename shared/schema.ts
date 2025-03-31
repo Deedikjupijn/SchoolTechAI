@@ -49,6 +49,7 @@ export const chatMessages = pgTable("chat_messages", {
   isUser: boolean("is_user").notNull(),
   message: text("message").notNull(),
   timestamp: text("timestamp").notNull(),
+  imageUrl: text("image_url"),
 });
 
 export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
@@ -56,6 +57,7 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
   isUser: true,
   message: true,
   timestamp: true,
+  imageUrl: true,
 });
 
 // Export types

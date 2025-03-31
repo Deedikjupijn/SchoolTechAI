@@ -95,3 +95,11 @@
 .prose th {
   background-color: rgba(0,0,0,0.05);
 }
+
+/* Responsive images in chat */
+.chat-message-user img,
+.chat-message-ai img {
+  max-width: 100%;
+  border-radius: 0.375rem;
+  margin: 0.5rem 0;
+}

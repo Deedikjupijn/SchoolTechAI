@@ -28,12 +28,17 @@ export default function DeviceDetail() {
     enabled: !!deviceId,
   });
 
-  // Handle sending chat message
-  const handleSendMessage = async (message: string) => {
+  // Handle sending chat message with optional image
+  const handleSendMessage = async (message: string, imageUrl?: string) => {
     if (!message.trim() || !deviceId) return;
 
+    const payload = { 
+      message,
+      ...(imageUrl && { imageUrl })
+    };
+
     try {
-      const response = await apiRequest("POST", `/api/devices/${deviceId}/chat`, { message });
+      const response = await apiRequest("POST", `/api/devices/${deviceId}/chat`, payload);
       const data = await response.json();
       
       // Invalidate the messages query to trigger a refetch
