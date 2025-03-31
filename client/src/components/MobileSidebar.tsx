@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MaterialIcon } from "@/components/icons";
 import { DeviceCategory } from "@/lib/types";
 import UserMenu from "@/components/UserMenu";
+import { useAuth } from "@/hooks/use-auth";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export default function MobileSidebar({ isOpen, onClose, activeCategory }: Mobil
   const { data: categories, isLoading } = useQuery<DeviceCategory[]>({
     queryKey: ["/api/device-categories"],
   });
+  const { user } = useAuth();
 
   // Close sidebar when clicking outside
   useEffect(() => {
@@ -100,12 +102,30 @@ export default function MobileSidebar({ isOpen, onClose, activeCategory }: Mobil
         
         {/* User Settings & Account */}
         <div className="p-4 border-t border-neutral-100">
-          <div className="flex items-center justify-between mb-2">
-            <UserMenu />
-            <Button variant="ghost" size="sm" className="flex items-center text-neutral-600 hover:text-primary">
-              <MaterialIcon name="help_outline" className="h-5 w-5" />
-            </Button>
-          </div>
+          {user ? (
+            <div className="flex items-center justify-between">
+              <UserMenu />
+              <Button variant="ghost" size="sm" className="flex items-center text-neutral-600 hover:text-primary">
+                <MaterialIcon name="help_outline" className="h-5 w-5" />
+              </Button>
+            </div>
+          ) : (
+            <Link href="/auth" onClick={onClose}>
+              <Button className="w-full" size="sm">
+                <MaterialIcon name="login" className="mr-2 h-4 w-4" />
+                Sign in
+              </Button>
+            </Link>
+          )}
+          
+          {user?.isAdmin && (
+            <Link href="/admin" onClick={onClose}>
+              <Button variant="outline" className="w-full mt-3" size="sm">
+                <MaterialIcon name="admin_panel_settings" className="mr-2 h-4 w-4" />
+                Admin Dashboard
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

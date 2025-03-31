@@ -5,7 +5,7 @@ import UserMenu from "@/components/UserMenu";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export default function MainNavbar() {
+export default function MainNavbar({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const [location] = useLocation();
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -16,6 +16,16 @@ export default function MainNavbar() {
     <header className="fixed top-0 z-50 w-full border-b bg-background shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center">
+          {isMobile && onToggleSidebar && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="mr-2" 
+              onClick={onToggleSidebar}
+            >
+              <MaterialIcon name="menu" className="h-6 w-6" />
+            </Button>
+          )}
           <Link to="/" className="flex items-center space-x-2">
             <MaterialIcon name="build" className="h-6 w-6 text-primary" />
             <span className="font-bold text-lg">Workshop Assistant</span>
@@ -43,16 +53,7 @@ export default function MainNavbar() {
             </nav>
           )}
           
-          {user ? (
-            <UserMenu />
-          ) : (
-            <Button asChild size="sm">
-              <Link to="/auth">
-                <MaterialIcon name="login" className="mr-2 h-4 w-4" />
-                Sign in
-              </Link>
-            </Button>
-          )}
+          {user && <UserMenu />}
         </div>
       </div>
     </header>

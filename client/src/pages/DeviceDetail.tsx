@@ -74,17 +74,6 @@ export default function DeviceDetail() {
 
       {/* Main content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Mobile Button for Sidebar */}
-        <div className="md:hidden border-b border-neutral-100 p-2 flex justify-end">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsMobileSidebarOpen(true)}
-          >
-            <MaterialIcon name="menu" />
-          </Button>
-        </div>
-
         {/* Back button */}
         <div className="bg-white border-b border-neutral-100 p-2 md:hidden">
           <Link href={device ? `/categories/${device.categoryId}` : "/"}>

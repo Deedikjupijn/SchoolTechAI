@@ -35,16 +35,6 @@ export default function Home() {
 
       {/* Main content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Mobile Button for Sidebar */}
-        <div className="md:hidden border-b border-neutral-100 p-2 flex justify-end">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsMobileSidebarOpen(true)}
-          >
-            <MaterialIcon name="menu" />
-          </Button>
-        </div>
 
         {/* Content */}
         <div className="bg-white p-4 flex-1 overflow-y-auto">
