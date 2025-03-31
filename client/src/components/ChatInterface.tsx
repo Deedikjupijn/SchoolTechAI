@@ -78,7 +78,7 @@ export default function ChatInterface({
   // Show placeholder when no device is selected
   if (!device) {
     return (
-      <div className="md:w-1/2 lg:w-2/5 flex flex-col h-full bg-neutral-50">
+      <div className="w-full flex flex-col h-full bg-neutral-50">
         <div className="p-4 text-center text-neutral-500 flex-1 flex items-center justify-center">
           <div>
             <MaterialIcon name="chat_bubble_outline" className="text-4xl mb-2" />
@@ -94,7 +94,7 @@ export default function ChatInterface({
   
   // Render the main chat interface
   return (
-    <div className="md:w-1/2 lg:w-2/5 flex flex-col h-full">
+    <div className="w-full flex flex-col h-full">
       <div className="p-4 bg-white border-b border-neutral-100 flex items-center">
         <div className="flex-1">
           <h3 className="font-medium">{device.name} Assistant</h3>
@@ -162,8 +162,8 @@ export default function ChatInterface({
                 key={msg.id} 
                 className={`${
                   msg.isUser 
-                    ? "chat-message-user bg-white rounded-lg p-4 mb-4 shadow-sm ml-auto max-w-3/4 border-l-4 border-[#009688]" 
-                    : "chat-message-ai bg-white rounded-lg p-4 mb-4 shadow-sm border-l-4 border-primary"
+                    ? "chat-message-user bg-white rounded-lg p-4 mb-4 shadow-sm ml-auto max-w-[85%] sm:max-w-3/4 border-l-4 border-[#009688]" 
+                    : "chat-message-ai bg-white rounded-lg p-4 mb-4 shadow-sm border-l-4 border-primary max-w-[90%] sm:max-w-full"
                 }`}
               >
                 <div className="flex items-start">
@@ -197,7 +197,7 @@ export default function ChatInterface({
         
         {/* Typing indicator */}
         {isSending && (
-          <div className="chat-message-ai bg-white rounded-lg p-4 mb-4 shadow-sm border-l-4 border-primary">
+          <div className="chat-message-ai bg-white rounded-lg p-4 mb-4 shadow-sm border-l-4 border-primary max-w-[90%] sm:max-w-full">
             <div className="flex items-start">
               <div className="p-2 bg-primary bg-opacity-20 rounded-full">
                 <MaterialIcon name="smart_toy" className="text-primary" />
@@ -217,27 +217,27 @@ export default function ChatInterface({
       </div>
       
       {/* Message Input */}
-      <div className="p-4 bg-white border-t border-neutral-100">
+      <div className="p-3 sm:p-4 bg-white border-t border-neutral-100">
         <div className="flex">
           <Input 
             type="text" 
             placeholder={`Ask about ${device.name.toLowerCase()}...`}
-            className="flex-1 py-2 px-4 border border-neutral-200 rounded-l-lg focus:outline-none"
+            className="flex-1 py-2 px-3 border border-neutral-200 rounded-l-lg focus:outline-none text-sm sm:text-base"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
             disabled={isSending || isLoading}
           />
           <Button 
-            className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-r-lg flex items-center"
+            className="bg-primary hover:bg-primary-dark text-white px-3 sm:px-4 py-2 rounded-r-lg flex items-center"
             onClick={handleSendMessage}
             disabled={isSending || isLoading || !message.trim()}
           >
-            <MaterialIcon name="send" className="mr-1" />
-            Send
+            <MaterialIcon name="send" className="mr-1 hidden sm:inline" />
+            <span className="text-sm sm:text-base">Send</span>
           </Button>
         </div>
-        <div className="flex justify-between mt-2 text-xs text-neutral-500">
+        <div className="flex justify-between mt-1 sm:mt-2 text-xs text-neutral-500">
           <span>Powered by Gemini</span>
         </div>
       </div>

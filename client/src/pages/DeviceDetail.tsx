@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 export default function DeviceDetail() {
   const { deviceId } = useParams<{ deviceId: string }>();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch device details
@@ -94,22 +95,44 @@ export default function DeviceDetail() {
           </Link>
         </div>
 
+        {/* Mobile Tab Controls */}
+        <div className="md:hidden border-b border-gray-200">
+          <div className="flex justify-around">
+            <button 
+              className={`flex-1 py-3 font-medium text-center ${!showChat ? 'text-primary border-b-2 border-primary' : 'text-gray-500'}`}
+              onClick={() => setShowChat(false)}
+            >
+              Device Info
+            </button>
+            <button 
+              className={`flex-1 py-3 font-medium text-center ${showChat ? 'text-primary border-b-2 border-primary' : 'text-gray-500'}`}
+              onClick={() => setShowChat(true)}
+            >
+              Chat Assistant
+            </button>
+          </div>
+        </div>
+
         {/* Device Information and Chat Area */}
         <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
-          {/* Device Information Panel */}
-          <DeviceInfoPanel 
-            device={device} 
-            isLoading={isLoadingDevice} 
-          />
+          {/* Device Information Panel - Hidden on mobile when chat is active */}
+          <div className={`${showChat ? 'hidden' : 'flex'} md:flex md:w-1/2 lg:w-3/5`}>
+            <DeviceInfoPanel 
+              device={device} 
+              isLoading={isLoadingDevice} 
+            />
+          </div>
           
-          {/* Chat Interface */}
-          <ChatInterface 
-            device={device}
-            messages={messages || []}
-            isLoading={isLoadingMessages}
-            onSendMessage={handleSendMessage}
-            onClearChat={handleClearChat}
-          />
+          {/* Chat Interface - Hidden on mobile when info is active */}
+          <div className={`${!showChat ? 'hidden' : 'flex'} md:flex md:w-1/2 lg:w-2/5 flex-1`}>
+            <ChatInterface 
+              device={device}
+              messages={messages || []}
+              isLoading={isLoadingMessages}
+              onSendMessage={handleSendMessage}
+              onClearChat={handleClearChat}
+            />
+          </div>
         </div>
       </main>
     </div>
