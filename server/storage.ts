@@ -1,8 +1,21 @@
 import { 
   type DeviceCategory, type InsertDeviceCategory,
   type Device, type InsertDevice,
-  type ChatMessage, type InsertChatMessage
+  type ChatMessage, type InsertChatMessage,
+  type User, type InsertUser
 } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
 
 export interface IStorage {
   // Device Categories
@@ -15,36 +28,114 @@ export interface IStorage {
   getDevicesByCategory(categoryId: number): Promise<Device[]>;
   getDevice(id: number): Promise<Device | undefined>;
   createDevice(device: InsertDevice): Promise<Device>;
+  updateDevice(id: number, device: Partial<InsertDevice>): Promise<Device | undefined>;
+  deleteDevice(id: number): Promise<boolean>;
   
   // Chat Messages
   getChatMessages(deviceId: number): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   clearChatMessages(deviceId: number): Promise<void>;
+  
+  // Users
+  getAllUsers(): Promise<User[]>;
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
+  // Session store for authentication
+  sessionStore: any; // Will be properly typed once we implement it
 }
 
 export class MemStorage implements IStorage {
   private deviceCategories: Map<number, DeviceCategory>;
   private devices: Map<number, Device>;
   private chatMessages: Map<number, ChatMessage>;
+  private users: Map<number, User>;
   
   private categoryId: number;
   private deviceId: number;
   private messageId: number;
+  private userId: number;
+  
+  // Session store for express-session
+  sessionStore: session.Store;
 
   constructor() {
     this.deviceCategories = new Map();
     this.devices = new Map();
     this.chatMessages = new Map();
+    this.users = new Map();
     
     this.categoryId = 1;
     this.deviceId = 1;
     this.messageId = 1;
+    this.userId = 1;
+    
+    // Initialize the session store
+    const MemoryStore = createMemoryStore(session);
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // Prune expired entries every 24h
+    });
     
     // Initialize with sample data
     this.initializeSampleData();
   }
   
+  // User management methods
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+  
+  async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      user => user.username === username
+    );
+  }
+  
+  async createUser(userData: InsertUser): Promise<User> {
+    const id = this.userId++;
+    const timestamp = new Date();
+    // Explicitly construct the User object to match the schema
+    const newUser: User = { 
+      id,
+      username: userData.username,
+      password: userData.password,
+      displayName: userData.displayName,
+      isAdmin: userData.isAdmin ?? false, // Ensure isAdmin is always a boolean 
+      createdAt: timestamp
+    };
+    
+    this.users.set(id, newUser);
+    return newUser;
+  }
+  
+  // Device management methods
+  async updateDevice(id: number, deviceData: Partial<InsertDevice>): Promise<Device | undefined> {
+    const device = this.devices.get(id);
+    if (!device) return undefined;
+    
+    const updatedDevice = { ...device, ...deviceData };
+    this.devices.set(id, updatedDevice);
+    return updatedDevice;
+  }
+  
+  async deleteDevice(id: number): Promise<boolean> {
+    return this.devices.delete(id);
+  }
+  
   private async initializeSampleData() {
+    // Create an admin user
+    await this.createUser({
+      username: "admin",
+      password: await hashPassword("admin123"),
+      displayName: "Administrator",
+      isAdmin: true
+    });
+    
     // Create device categories
     const cuttingCategory = await this.createDeviceCategory({
       name: "Cutting Tools",
@@ -903,6 +994,8 @@ export class MemStorage implements IStorage {
       this.chatMessages.delete(message.id);
     }
   }
+  
+  // End of MemStorage class methods
 }
 
 export const storage = new MemStorage();

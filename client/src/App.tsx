@@ -6,11 +6,15 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import DeviceCategory from "@/pages/DeviceCategory";
 import DeviceDetail from "@/pages/DeviceDetail";
+import AuthPage from "@/pages/auth-page";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/lib/protected-route";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/auth" component={AuthPage} />
       <Route path="/categories/:categoryId" component={DeviceCategory} />
       <Route path="/devices/:deviceId" component={DeviceDetail} />
       <Route component={NotFound} />
@@ -21,8 +25,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
