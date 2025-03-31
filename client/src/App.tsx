@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import DeviceCategory from "@/pages/DeviceCategory";
 import DeviceDetail from "@/pages/DeviceDetail";
 import AuthPage from "@/pages/auth-page";
+import AdminDashboard from "@/pages/AdminDashboard";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <Route path="/categories/:categoryId" component={DeviceCategory} />
       <Route path="/devices/:deviceId" component={DeviceDetail} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

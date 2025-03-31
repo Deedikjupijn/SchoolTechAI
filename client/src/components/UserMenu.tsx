@@ -58,9 +58,16 @@ export default function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled={!user.isAdmin}>
-          <MaterialIcon name="settings" className="mr-2 h-4 w-4" />
-          <span>Settings</span>
+        <DropdownMenuItem 
+          disabled={!user.isAdmin}
+          onClick={() => {
+            if (user.isAdmin) {
+              window.location.href = "/admin";
+            }
+          }}
+        >
+          <MaterialIcon name="admin_panel_settings" className="mr-2 h-4 w-4" />
+          <span>Admin Dashboard</span>
           {!user.isAdmin && (
             <span className="ml-auto text-xs text-muted-foreground">Admin only</span>
           )}
