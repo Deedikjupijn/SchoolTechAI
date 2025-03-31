@@ -46,7 +46,6 @@ export const insertDeviceSchema = createInsertSchema(devices).pick({
 export const chatMessages = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
   deviceId: integer("device_id").notNull(),
-  userId: integer("user_id"),  // Can be null for anonymous users
   isUser: boolean("is_user").notNull(),
   message: text("message").notNull(),
   timestamp: text("timestamp").notNull(),
@@ -55,7 +54,6 @@ export const chatMessages = pgTable("chat_messages", {
 
 export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
   deviceId: true,
-  userId: true,
   isUser: true,
   message: true,
   timestamp: true,

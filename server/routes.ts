@@ -107,10 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid device ID" });
       }
 
-      // If user is authenticated, get their messages
-      // Otherwise, get anonymous messages
-      const userId = req.isAuthenticated() ? req.user.id : undefined;
-      const messages = await storage.getChatMessages(deviceId, userId);
+      const messages = await storage.getChatMessages(deviceId);
       res.json(messages);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch chat messages" });
@@ -161,11 +158,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Device not found" });
       }
 
-      // Save user message with userId if authenticated
-      const userId = req.isAuthenticated() ? req.user.id : undefined;
+      // Save user message
       const userMessage = {
         deviceId,
-        userId,
         isUser: true,
         message: result.data.message,
         timestamp: new Date().toISOString(),
@@ -183,10 +178,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get response from Gemini
       const aiResponse = await geminiService.getChatResponse(device, prompt);
 
-      // Save AI response with the same userId as the user message
+      // Save AI response
       const aiMessage = {
         deviceId,
-        userId,
         isUser: false,
         message: aiResponse,
         timestamp: new Date().toISOString(),
@@ -207,7 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Clear chat history for a device (user-specific if authenticated)
+  // Clear chat history for a device
   app.delete("/api/devices/:deviceId/chat", async (req, res) => {
     try {
       const deviceId = parseInt(req.params.deviceId);
@@ -215,16 +209,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid device ID" });
       }
 
-      // If user is authenticated, clear only their messages
-      // Otherwise, clear anonymous messages
-      const userId = req.isAuthenticated() ? req.user.id : undefined;
-      await storage.clearChatMessages(deviceId, userId);
-      
-      res.json({ 
-        message: req.isAuthenticated() 
-          ? "Your chat history has been cleared" 
-          : "Anonymous chat history cleared" 
-      });
+      await storage.clearChatMessages(deviceId);
+      res.json({ message: "Chat history cleared" });
     } catch (error) {
       res.status(500).json({ message: "Failed to clear chat history" });
     }
@@ -313,8 +299,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid device ID" });
       }
 
-      // Clear all chat messages for the device (pass null to clear all users' messages)
-      await storage.clearChatMessages(deviceId, null);
+      // Clear any chat messages first
+      await storage.clearChatMessages(deviceId);
       
       const success = await storage.deleteDevice(deviceId);
       if (!success) {

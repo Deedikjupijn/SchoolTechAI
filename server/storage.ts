@@ -2,17 +2,12 @@ import {
   type DeviceCategory, type InsertDeviceCategory,
   type Device, type InsertDevice,
   type ChatMessage, type InsertChatMessage,
-  type User, type InsertUser,
-  users, devices, deviceCategories, chatMessages
+  type User, type InsertUser
 } from "@shared/schema";
-import { db } from "./db";
-import { eq, and, desc, isNull } from "drizzle-orm";
 import session from "express-session";
 import createMemoryStore from "memorystore";
-import connectPg from "connect-pg-simple";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { pool } from "./db";
 
 const scryptAsync = promisify(scrypt);
 
@@ -37,9 +32,9 @@ export interface IStorage {
   deleteDevice(id: number): Promise<boolean>;
   
   // Chat Messages
-  getChatMessages(deviceId: number, userId?: number): Promise<ChatMessage[]>;
+  getChatMessages(deviceId: number): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
-  clearChatMessages(deviceId: number, userId?: number | null): Promise<void>;
+  clearChatMessages(deviceId: number): Promise<void>;
   
   // Users
   getAllUsers(): Promise<User[]>;
@@ -976,45 +971,23 @@ export class MemStorage implements IStorage {
   }
   
   // Chat Messages
-  async getChatMessages(deviceId: number, userId?: number): Promise<ChatMessage[]> {
+  async getChatMessages(deviceId: number): Promise<ChatMessage[]> {
     return Array.from(this.chatMessages.values())
-      .filter(message => {
-        if (userId) {
-          return message.deviceId === deviceId && message.userId === userId;
-        } else {
-          return message.deviceId === deviceId && !message.userId;
-        }
-      })
+      .filter(message => message.deviceId === deviceId)
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   }
   
   async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
     const id = this.messageId++;
-    const newMessage: ChatMessage = { 
-      ...message, 
-      id,
-      userId: message.userId || null,  // Ensure userId is null if undefined
-      imageUrl: message.imageUrl || null // Ensure imageUrl is null if undefined
-    };
+    const newMessage: ChatMessage = { ...message, id };
     this.chatMessages.set(id, newMessage);
     return newMessage;
   }
   
-  async clearChatMessages(deviceId: number, userId?: number | null): Promise<void> {
+  async clearChatMessages(deviceId: number): Promise<void> {
     // Find all messages for this device
     const messagesToDelete = Array.from(this.chatMessages.values())
-      .filter(message => {
-        if (userId === null) {
-          // Delete all messages for this device regardless of user
-          return message.deviceId === deviceId;
-        } else if (userId) {
-          // Delete only messages for this specific user
-          return message.deviceId === deviceId && message.userId === userId;
-        } else {
-          // Delete anonymous messages (no userId)
-          return message.deviceId === deviceId && !message.userId;
-        }
-      });
+      .filter(message => message.deviceId === deviceId);
     
     // Delete each message
     for (const message of messagesToDelete) {
@@ -1025,139 +998,4 @@ export class MemStorage implements IStorage {
   // End of MemStorage class methods
 }
 
-// Implementation using PostgreSQL database
-export class DatabaseStorage implements IStorage {
-  // Session store for express-session
-  sessionStore: session.Store;
-
-  constructor() {
-    // Initialize PostgreSQL session store
-    const PostgresSessionStore = connectPg(session);
-    this.sessionStore = new PostgresSessionStore({ 
-      pool, 
-      createTableIfMissing: true 
-    });
-  }
-
-  // Device Categories methods
-  async getAllDeviceCategories(): Promise<DeviceCategory[]> {
-    return await db.select().from(deviceCategories);
-  }
-  
-  async getDeviceCategory(id: number): Promise<DeviceCategory | undefined> {
-    const [category] = await db.select().from(deviceCategories).where(eq(deviceCategories.id, id));
-    return category;
-  }
-  
-  async createDeviceCategory(category: InsertDeviceCategory): Promise<DeviceCategory> {
-    const [newCategory] = await db.insert(deviceCategories).values(category).returning();
-    return newCategory;
-  }
-  
-  // Device methods
-  async getAllDevices(): Promise<Device[]> {
-    return await db.select().from(devices);
-  }
-  
-  async getDevicesByCategory(categoryId: number): Promise<Device[]> {
-    return await db.select().from(devices).where(eq(devices.categoryId, categoryId));
-  }
-  
-  async getDevice(id: number): Promise<Device | undefined> {
-    const [device] = await db.select().from(devices).where(eq(devices.id, id));
-    return device;
-  }
-  
-  async createDevice(device: InsertDevice): Promise<Device> {
-    const [newDevice] = await db.insert(devices).values(device).returning();
-    return newDevice;
-  }
-  
-  async updateDevice(id: number, deviceData: Partial<InsertDevice>): Promise<Device | undefined> {
-    const [updatedDevice] = await db.update(devices)
-      .set(deviceData)
-      .where(eq(devices.id, id))
-      .returning();
-    return updatedDevice;
-  }
-  
-  async deleteDevice(id: number): Promise<boolean> {
-    await db.delete(devices).where(eq(devices.id, id));
-    return true;
-  }
-  
-  // Chat message methods
-  async getChatMessages(deviceId: number, userId?: number): Promise<ChatMessage[]> {
-    // If userId is provided, get only messages for that user
-    // Otherwise, get messages with null userId (anonymous users)
-    if (userId) {
-      // Get messages specifically for this user
-      return await db.select()
-        .from(chatMessages)
-        .where(and(
-          eq(chatMessages.deviceId, deviceId),
-          eq(chatMessages.userId, userId)
-        ))
-        .orderBy(chatMessages.timestamp);
-    } else {
-      // Get messages for anonymous users (null userId)
-      return await db.select()
-        .from(chatMessages)
-        .where(and(
-          eq(chatMessages.deviceId, deviceId),
-          isNull(chatMessages.userId)
-        ))
-        .orderBy(chatMessages.timestamp);
-    }
-  }
-  
-  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
-    const [newMessage] = await db.insert(chatMessages).values(message).returning();
-    return newMessage;
-  }
-  
-  async clearChatMessages(deviceId: number, userId?: number | null): Promise<void> {
-    if (userId === null) {
-      // Case for admin deletion of a device - delete ALL messages for this device
-      await db.delete(chatMessages)
-        .where(eq(chatMessages.deviceId, deviceId));
-    } else if (userId) {
-      // Delete only messages for this user
-      await db.delete(chatMessages)
-        .where(and(
-          eq(chatMessages.deviceId, deviceId),
-          eq(chatMessages.userId, userId)
-        ));
-    } else {
-      // Delete only messages for anonymous users
-      await db.delete(chatMessages)
-        .where(and(
-          eq(chatMessages.deviceId, deviceId),
-          isNull(chatMessages.userId)
-        ));
-    }
-  }
-  
-  // User methods
-  async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users);
-  }
-  
-  async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-  
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
-  }
-  
-  async createUser(userData: InsertUser): Promise<User> {
-    const [newUser] = await db.insert(users).values(userData).returning();
-    return newUser;
-  }
-}
-
-// Update to use the database storage instead of memory storage
-export const storage = new DatabaseStorage();
+export const storage = new MemStorage();
