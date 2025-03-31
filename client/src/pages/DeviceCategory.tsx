@@ -35,7 +35,7 @@ export default function DeviceCategoryPage() {
   ) || [];
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
       {/* Sidebar for desktop */}
       <Sidebar activeCategory={parseInt(categoryId)} />
 
@@ -48,12 +48,8 @@ export default function DeviceCategoryPage() {
 
       {/* Main content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Mobile Header */}
-        <header className="md:hidden bg-white border-b border-neutral-100 p-4 flex items-center justify-between">
-          <h1 className="text-lg font-medium flex items-center">
-            <MaterialIcon name="school" className="mr-2 text-primary" />
-            MetalWorks AI
-          </h1>
+        {/* Mobile Button for Sidebar */}
+        <div className="md:hidden border-b border-neutral-100 p-2 flex justify-end">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -61,7 +57,7 @@ export default function DeviceCategoryPage() {
           >
             <MaterialIcon name="menu" />
           </Button>
-        </header>
+        </div>
 
         {/* Device Selector */}
         <div className="bg-white border-b border-neutral-100 p-4">

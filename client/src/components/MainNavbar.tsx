@@ -13,18 +13,18 @@ export default function MainNavbar() {
   const isAdminPage = location.startsWith('/admin');
   
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <div className="mr-4 flex">
+    <header className="fixed top-0 z-50 w-full border-b bg-background shadow-sm">
+      <div className="container flex h-16 items-center justify-between px-4">
+        <div className="flex items-center">
           <Link to="/" className="flex items-center space-x-2">
             <MaterialIcon name="build" className="h-6 w-6 text-primary" />
-            <span className="font-bold">Workshop Assistant</span>
+            <span className="font-bold text-lg">Workshop Assistant</span>
           </Link>
         </div>
         
-        <div className="flex flex-1 items-center justify-end space-x-2">
+        <div className="flex items-center space-x-4">
           {!isMobile && (
-            <nav className="flex items-center space-x-2 mr-4">
+            <nav className="flex items-center space-x-1">
               <Button variant="ghost" asChild className={location === '/' ? 'bg-muted' : ''}>
                 <Link to="/">
                   <MaterialIcon name="home" className="mr-2 h-5 w-5" />
@@ -46,9 +46,9 @@ export default function MainNavbar() {
           {user ? (
             <UserMenu />
           ) : (
-            <Button asChild>
+            <Button asChild size="sm">
               <Link to="/auth">
-                <MaterialIcon name="login" className="mr-2 h-5 w-5" />
+                <MaterialIcon name="login" className="mr-2 h-4 w-4" />
                 Sign in
               </Link>
             </Button>

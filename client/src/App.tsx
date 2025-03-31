@@ -31,7 +31,7 @@ function App() {
       <AuthProvider>
         <div className="min-h-screen flex flex-col">
           <MainNavbar />
-          <main className="flex-1">
+          <main className="flex-1 pt-16">
             <Router />
           </main>
         </div>

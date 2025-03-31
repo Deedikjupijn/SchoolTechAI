@@ -117,9 +117,9 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-gray-50">
       {/* Admin sidebar */}
-      <div className="w-64 border-r border-neutral-200 bg-white p-4">
+      <div className="w-64 border-r border-neutral-200 bg-white p-4 hidden md:block">
         <div className="mb-6">
           <h1 className="text-xl font-bold text-primary">Admin Dashboard</h1>
           <p className="text-sm text-muted-foreground">Manage workshop devices</p>
@@ -155,8 +155,26 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-auto p-6">
-        {renderContent()}
+      <div className="flex-1 overflow-auto">
+        {/* Mobile Tabs for Admin */}
+        <div className="md:hidden p-2 border-b">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full justify-start">
+              <TabsTrigger value="devices">
+                <MaterialIcon name="devices" className="mr-2 h-5 w-5" />
+                Devices
+              </TabsTrigger>
+              <TabsTrigger value="categories">
+                <MaterialIcon name="category" className="mr-2 h-5 w-5" />
+                Categories
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+        
+        <div className="p-6">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
