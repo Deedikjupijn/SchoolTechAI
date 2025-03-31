@@ -2,6 +2,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MaterialIcon } from "@/components/icons";
 import { Device, MediaItem } from "@/lib/types";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 
 interface DeviceInfoPanelProps {
   device?: Device;
@@ -9,6 +19,7 @@ interface DeviceInfoPanelProps {
 }
 
 export default function DeviceInfoPanel({ device, isLoading }: DeviceInfoPanelProps) {
+  const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
   if (isLoading) {
     return (
       <div className="w-full h-full overflow-y-auto md:border-r border-neutral-100 p-6">
@@ -144,27 +155,77 @@ export default function DeviceInfoPanel({ device, isLoading }: DeviceInfoPanelPr
                 <div key={index} className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
                   <div className="w-full">
                     {media.type === 'image' || media.type === 'diagram' ? (
-                      <div className="relative w-full">
-                        <AspectRatio ratio={16 / 9}>
-                          <img 
-                            src={media.url} 
-                            alt={media.title}
-                            className="object-cover w-full h-full rounded-t-lg"
-                          />
-                        </AspectRatio>
-                      </div>
-                    ) : media.type === 'pdf' ? (
-                      <div className="flex items-center justify-center bg-gray-100 h-32">
-                        <MaterialIcon name="picture_as_pdf" className="text-4xl text-red-500" />
-                      </div>
-                    ) : media.type === 'video' ? (
-                      <div className="relative w-full">
-                        <AspectRatio ratio={16 / 9}>
-                          <div className="flex items-center justify-center bg-gray-100 w-full h-full">
-                            <MaterialIcon name="videocam" className="text-4xl text-blue-500" />
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity">
+                            <AspectRatio ratio={16 / 9}>
+                              <img 
+                                src={media.url} 
+                                alt={media.title}
+                                className="object-cover w-full h-full rounded-t-lg"
+                              />
+                            </AspectRatio>
                           </div>
-                        </AspectRatio>
-                      </div>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[70vw] md:max-w-[80vw]">
+                          <DialogHeader>
+                            <DialogTitle>{media.title}</DialogTitle>
+                            {media.description && <DialogDescription>{media.description}</DialogDescription>}
+                          </DialogHeader>
+                          <div className="flex justify-center mt-4">
+                            <img 
+                              src={media.url} 
+                              alt={media.title}
+                              className="max-h-[60vh] max-w-full object-contain"
+                            />
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    ) : media.type === 'pdf' ? (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <div className="flex items-center justify-center bg-gray-100 h-32 cursor-pointer hover:bg-gray-200 transition-colors">
+                            <MaterialIcon name="picture_as_pdf" className="text-4xl text-red-500" />
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[70vw] md:max-w-[80vw]">
+                          <DialogHeader>
+                            <DialogTitle>{media.title}</DialogTitle>
+                            {media.description && <DialogDescription>{media.description}</DialogDescription>}
+                          </DialogHeader>
+                          <div className="flex justify-center mt-4">
+                            <iframe 
+                              src={`${media.url}#toolbar=0&navpanes=0`} 
+                              className="w-full h-[60vh]"
+                            />
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    ) : media.type === 'video' ? (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity">
+                            <AspectRatio ratio={16 / 9}>
+                              <div className="flex items-center justify-center bg-gray-100 w-full h-full">
+                                <MaterialIcon name="videocam" className="text-4xl text-blue-500" />
+                              </div>
+                            </AspectRatio>
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[70vw] md:max-w-[80vw]">
+                          <DialogHeader>
+                            <DialogTitle>{media.title}</DialogTitle>
+                            {media.description && <DialogDescription>{media.description}</DialogDescription>}
+                          </DialogHeader>
+                          <div className="flex justify-center mt-4">
+                            <video 
+                              src={media.url} 
+                              controls
+                              className="max-h-[60vh] max-w-full"
+                            />
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     ) : null}
                   </div>
                   
@@ -173,13 +234,43 @@ export default function DeviceInfoPanel({ device, isLoading }: DeviceInfoPanelPr
                     {media.description && (
                       <p className="text-xs text-gray-600 mt-1">{media.description}</p>
                     )}
-                    {media.relatedSection && (
-                      <div className="mt-2">
+                    <div className="flex flex-wrap gap-2 mt-3 justify-between items-center">
+                      {media.relatedSection && (
                         <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
                           {media.relatedSection}
                         </span>
+                      )}
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 px-2 py-1 text-xs"
+                          onClick={() => window.open(media.url, '_blank')}
+                        >
+                          <MaterialIcon name="open_in_new" className="mr-1 h-3 w-3" />
+                          Open
+                        </Button>
+                        <a 
+                          href={media.url} 
+                          download={`${media.title.replace(/\s+/g, '_')}.${
+                            media.type === 'image' ? 'jpg' : 
+                            media.type === 'pdf' ? 'pdf' : 
+                            media.type === 'video' ? 'mp4' : 'file'
+                          }`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button 
+                            variant="default" 
+                            size="sm" 
+                            className="h-8 px-2 py-1 text-xs"
+                          >
+                            <MaterialIcon name="download" className="mr-1 h-3 w-3" />
+                            Download
+                          </Button>
+                        </a>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               ))}
