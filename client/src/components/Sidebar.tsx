@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { MaterialIcon } from "@/components/icons";
 import { DeviceCategory } from "@/lib/types";
+import UserMenu from "@/components/UserMenu";
 
 interface SidebarProps {
   activeCategory?: number;
@@ -50,16 +51,14 @@ export default function Sidebar({ activeCategory }: SidebarProps) {
         )}
       </nav>
       
-      {/* User Settings */}
-      <div className="p-4 border-t border-neutral-100">
-        <Button variant="ghost" className="flex items-center text-neutral-600 hover:text-primary w-full justify-start">
-          <MaterialIcon name="settings" className="mr-2" />
-          Settings
-        </Button>
-        <Button variant="ghost" className="flex items-center text-neutral-600 hover:text-primary w-full justify-start mt-2">
-          <MaterialIcon name="help_outline" className="mr-2" />
-          Help
-        </Button>
+      {/* User Settings & Account */}
+      <div className="p-4 border-t border-neutral-100 flex flex-col">
+        <div className="flex items-center justify-between mb-2">
+          <UserMenu />
+          <Button variant="ghost" size="sm" className="flex items-center text-neutral-600 hover:text-primary">
+            <MaterialIcon name="help_outline" className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </aside>
   );

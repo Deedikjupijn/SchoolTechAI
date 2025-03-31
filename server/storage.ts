@@ -128,11 +128,11 @@ export class MemStorage implements IStorage {
   }
   
   private async initializeSampleData() {
-    // Create an admin user
+    // Create a default admin user with known credentials
     await this.createUser({
       username: "admin",
       password: await hashPassword("admin123"),
-      displayName: "Administrator",
+      displayName: "Workshop Administrator",
       isAdmin: true
     });
     
