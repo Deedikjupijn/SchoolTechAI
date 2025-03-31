@@ -71,11 +71,21 @@ export class MemStorage implements IStorage {
       icon: "format_paint"
     });
     
+    const formingCategory = await this.createDeviceCategory({
+      name: "Forming Tools",
+      icon: "roundabout_right"
+    });
+    
+    const machiningCategory = await this.createDeviceCategory({
+      name: "Machining Tools",
+      icon: "settings"
+    });
+    
     // Create devices
     // 1. Laser Cutter
     await this.createDevice({
       name: "Laser Cutter",
-      icon: "hub",
+      icon: "laser",
       shortDescription: "Precision cutting tool for metal sheets using focused laser beams",
       categoryId: cuttingCategory.id,
       specifications: {
@@ -167,7 +177,7 @@ export class MemStorage implements IStorage {
     // 2. Metal Drill Press
     await this.createDevice({
       name: "Metal Drill Press",
-      icon: "psychology",
+      icon: "drill",
       shortDescription: "Precision drilling machine for creating holes in metal workpieces",
       categoryId: drillingCategory.id,
       specifications: {
@@ -353,7 +363,7 @@ export class MemStorage implements IStorage {
     // 4. Digital Caliper
     await this.createDevice({
       name: "Digital Caliper",
-      icon: "architecture",
+      icon: "straighten",
       shortDescription: "Precision measuring tool for accurate dimensional measurements",
       categoryId: measuringCategory.id,
       specifications: {
@@ -439,10 +449,10 @@ export class MemStorage implements IStorage {
       ]
     });
     
-    // 5. Metal Grinder
+    // 5. Bench Grinder
     await this.createDevice({
       name: "Bench Grinder",
-      icon: "settings",
+      icon: "build",
       shortDescription: "Stationary power tool used for sharpening, shaping, and finishing metal workpieces",
       categoryId: finishingCategory.id,
       specifications: {
@@ -526,6 +536,305 @@ export class MemStorage implements IStorage {
             "Ensure workpiece is properly cooled",
             "Have wheel dressed to restore surface",
             "Angle workpiece differently against wheel"
+          ]
+        }
+      ]
+    });
+    
+    // 6. Sheet Metal Shear
+    await this.createDevice({
+      name: "Sheet Metal Shear",
+      icon: "content_cut",
+      shortDescription: "Precision cutting tool for straight cuts in sheet metal with minimal distortion",
+      categoryId: cuttingCategory.id,
+      specifications: {
+        "Cutting Capacity (Mild Steel)": "16 gauge (1.5mm)",
+        "Cutting Capacity (Stainless Steel)": "18 gauge (1.2mm)",
+        "Cutting Capacity (Aluminum)": "14 gauge (2.0mm)",
+        "Blade Length": "52 inches (1320mm)",
+        "Back Gauge Range": "0-24 inches (0-610mm)",
+        "Front Support": "30 inches (760mm)",
+        "Blade Angle": "2 degrees",
+        "Floor Space Required": "66\" L x 62\" W x 43\" H"
+      },
+      materials: {
+        "Mild Steel": "Up to 16 gauge",
+        "Stainless Steel": "Up to 18 gauge",
+        "Aluminum": "Up to 14 gauge",
+        "Brass": "Up to 16 gauge",
+        "Copper": "Up to 16 gauge",
+        "Zinc": "Up to 14 gauge"
+      },
+      safetyRequirements: [
+        "Always wear cut-resistant gloves when handling sheet metal",
+        "Never place hands between or near the blades",
+        "Maintain all guards and safety devices in proper working order",
+        "Position material completely flat on the table before cutting",
+        "Avoid cutting multiple sheets simultaneously unless designed for such operation",
+        "Secure all sheet metal scraps before disposal",
+        "Never attempt to cut rod, wire, or non-sheet materials",
+        "Stay clear of the back of the machine during operation"
+      ],
+      usageInstructions: [
+        {
+          title: "Machine Setup",
+          description: "Ensure shear is properly secured to floor. Adjust back gauge to desired cut length. Check blades for damage or misalignment."
+        },
+        {
+          title: "Material Positioning",
+          description: "Place sheet metal flat on table, against the back gauge and side guide. Hold material firmly in place."
+        },
+        {
+          title: "Shearing Process",
+          description: "Step on foot pedal with steady pressure to activate blade. Keep hands away from blade area. Support large sheets with helpers or material supports."
+        },
+        {
+          title: "Dealing with Long Cuts",
+          description: "For long cuts, support material on both sides of shear. Use roller supports for large sheets. Cut progressively from one end."
+        },
+        {
+          title: "Maintenance",
+          description: "Check blade clearance regularly. Clean shear table after use. Report any unusual sounds or difficulty in cutting."
+        }
+      ],
+      troubleshooting: [
+        {
+          issue: "Burrs on Cut Edge",
+          solutions: [
+            "Check blade clearance adjustment",
+            "Ensure blades are sharp and not damaged",
+            "Adjust blade gap to material thickness",
+            "Consider blade sharpening or replacement",
+            "Verify material is within capacity specifications"
+          ]
+        },
+        {
+          issue: "Difficult Operation (Hard to Cut)",
+          solutions: [
+            "Check if material exceeds machine capacity",
+            "Inspect for blade damage or dullness",
+            "Adjust blade clearance",
+            "Ensure proper hydraulic fluid levels",
+            "Check for debris between blades"
+          ]
+        },
+        {
+          issue: "Uneven or Angled Cuts",
+          solutions: [
+            "Verify material is positioned square to blade",
+            "Check machine level and alignment",
+            "Ensure back gauge is parallel to blade",
+            "Inspect hold-downs for proper operation",
+            "Check for blade wear or damage"
+          ]
+        }
+      ]
+    });
+    
+    // 7. Metal Press Brake
+    await this.createDevice({
+      name: "Metal Press Brake",
+      icon: "straight",
+      shortDescription: "Machine for bending sheet and plate metal with precise control of angles and dimensions",
+      categoryId: formingCategory.id,
+      specifications: {
+        "Bending Force": "60 tons",
+        "Working Length": "96 inches (2440mm)",
+        "Throat Depth": "8 inches (203mm)",
+        "Maximum Stroke": "6 inches (152mm)",
+        "Open Height": "16 inches (406mm)",
+        "Control System": "CNC with 10.4\" touchscreen",
+        "Back Gauge": "24 inch (610mm) CNC controlled",
+        "Bending Accuracy": "±0.0012 inches (±0.03mm)",
+        "Motor Power": "7.5 HP"
+      },
+      materials: {
+        "Mild Steel": "Up to 10 gauge (3.4mm)",
+        "Stainless Steel": "Up to 12 gauge (2.7mm)",
+        "Aluminum": "Up to 8 gauge (4.2mm)",
+        "Brass": "Up to 10 gauge (3.4mm)",
+        "Copper": "Up to 10 gauge (3.4mm)"
+      },
+      safetyRequirements: [
+        "Always wear safety glasses and steel-toed boots",
+        "Keep hands away from the point of operation",
+        "Use appropriate tooling for the material being formed",
+        "Never exceed the machine's rated capacity",
+        "Ensure the work area is clear of obstructions",
+        "Use back gauges and stops whenever possible",
+        "Operate the foot pedal only when in proper position",
+        "Verify all guards and safety devices are functioning",
+        "Never attempt to adjust tools while the machine is in operation"
+      ],
+      usageInstructions: [
+        {
+          title: "Machine Setup",
+          description: "Select appropriate dies for material and desired bend. Install upper and lower tooling securely. Set up back gauge for desired bend location."
+        },
+        {
+          title: "Programming",
+          description: "Enter bending sequence in CNC control. Define material type, thickness, bend angles, and dimensions. Run simulation if available."
+        },
+        {
+          title: "Test Bending",
+          description: "Perform test bend on scrap piece of same material and thickness. Measure bend angle and dimensions. Adjust program as needed."
+        },
+        {
+          title: "Production Bending",
+          description: "Position material against back gauge and side stops. Operate foot pedal with steady pressure. Support large workpieces properly."
+        },
+        {
+          title: "Multi-Bend Operations",
+          description: "For complex parts, follow bending sequence as programmed. Reposition workpiece between bends as required. Verify critical dimensions periodically."
+        },
+        {
+          title: "Finishing",
+          description: "Remove workpiece carefully after final bend. Check all dimensions and angles. Deburr edges if necessary."
+        }
+      ],
+      troubleshooting: [
+        {
+          issue: "Inconsistent Bend Angles",
+          solutions: [
+            "Verify material thickness consistency",
+            "Check tooling for wear or damage",
+            "Calibrate machine settings",
+            "Ensure proper back gauge positioning",
+            "Consider material springback compensation"
+          ]
+        },
+        {
+          issue: "Workpiece Slipping During Bending",
+          solutions: [
+            "Clean surfaces of tooling and material",
+            "Check alignment of back gauge",
+            "Use additional support for large workpieces",
+            "Adjust clamping pressure",
+            "Verify proper tooling setup"
+          ]
+        },
+        {
+          issue: "Material Deformation at Bending Point",
+          solutions: [
+            "Use larger radius die for material thickness",
+            "Check that bend is along proper grain direction",
+            "Ensure material is within machine capacity",
+            "Adjust bending speed",
+            "Consider using forming pads for delicate materials"
+          ]
+        }
+      ]
+    });
+    
+    // 8. Metal Lathe
+    await this.createDevice({
+      name: "Metal Lathe",
+      icon: "rotate_right",
+      shortDescription: "Precision machine tool that rotates a workpiece to perform various operations such as cutting, sanding, knurling, and turning",
+      categoryId: machiningCategory.id,
+      specifications: {
+        "Swing Over Bed": "13 inches (330mm)",
+        "Distance Between Centers": "40 inches (1000mm)",
+        "Spindle Bore": "1.57 inches (40mm)",
+        "Spindle Speed Range": "45-2000 RPM",
+        "Spindle Mount": "D1-4 Camlock",
+        "Tailstock Taper": "MT#3",
+        "Cross Slide Travel": "6.5 inches (165mm)",
+        "Compound Rest Travel": "3.15 inches (80mm)",
+        "Threading Capability": "4-56 TPI / 0.4-7mm Metric",
+        "Motor Power": "2 HP (1.5kW)"
+      },
+      materials: {
+        "Mild Steel": "Excellent",
+        "Alloy Steel": "Very good",
+        "Stainless Steel": "Good with proper tooling and coolant",
+        "Cast Iron": "Very good",
+        "Aluminum": "Excellent",
+        "Brass": "Excellent",
+        "Bronze": "Very good",
+        "Plastic": "Good with proper speeds and feeds"
+      },
+      safetyRequirements: [
+        "Always wear safety glasses or face shield",
+        "Remove jewelry, secure loose clothing, and tie back long hair",
+        "Never leave chuck key in chuck",
+        "Never measure workpiece while it is rotating",
+        "Always ensure workpiece is securely clamped",
+        "Stop machine before adjusting workpiece or tools",
+        "Use brush to remove chips, never use hands",
+        "Keep work area clean and free of oil or coolant spills",
+        "Know location of emergency stop button",
+        "Never leave machine running unattended"
+      ],
+      usageInstructions: [
+        {
+          title: "Machine Setup",
+          description: "Select appropriate tooling for operation. Mount workpiece securely in chuck or between centers. Set machine to appropriate RPM based on material and operation."
+        },
+        {
+          title: "Facing Operation",
+          description: "Mount facing tool at center height. Set depth of cut 0.010-0.020\" for finishing cuts. Engage power feed from outside to center, or manually move cross slide evenly."
+        },
+        {
+          title: "Turning Operation",
+          description: "Mount turning tool at center height. Set depth of cut (0.050-0.100\" roughing, 0.010-0.020\" finishing). Engage longitudinal power feed and cut along workpiece length."
+        },
+        {
+          title: "Drilling Operation",
+          description: "Mount drill in tailstock chuck. Advance tailstock to appropriate position. Start with center drill if necessary. Apply cutting fluid and advance drill with tailstock handwheel."
+        },
+        {
+          title: "Threading Operation",
+          description: "Set machine to appropriate thread pitch. Use threading tool ground to thread profile. Set compound at 29° angle. Take multiple light passes, retracting tool at end of each pass."
+        },
+        {
+          title: "Knurling Operation",
+          description: "Mount knurling tool in tool post. Position tool at center height. Apply moderate pressure and engage power feed at slow speed. Use cutting oil for lubrication."
+        }
+      ],
+      troubleshooting: [
+        {
+          issue: "Poor Surface Finish",
+          solutions: [
+            "Check for tool sharpness and proper geometry",
+            "Reduce feed rate",
+            "Increase RPM if possible",
+            "Use cutting fluid appropriate for material",
+            "Verify rigidity of workholding setup",
+            "Ensure tool is at center height"
+          ]
+        },
+        {
+          issue: "Chatter During Cutting",
+          solutions: [
+            "Reduce tool overhang",
+            "Increase rigidity of workholding",
+            "Reduce depth of cut",
+            "Adjust RPM to avoid resonance",
+            "Use sharper cutting tools",
+            "Check for loose gibs or bearings"
+          ]
+        },
+        {
+          issue: "Inaccurate Dimensions",
+          solutions: [
+            "Check for wear in lead screws or gibs",
+            "Verify calibration of dials or DRO",
+            "Account for tool deflection in deep cuts",
+            "Allow for material springback",
+            "Consider material expansion from heat",
+            "Take lighter finish passes"
+          ]
+        },
+        {
+          issue: "Tool Breakage",
+          solutions: [
+            "Reduce depth of cut",
+            "Ensure proper tool geometry for material",
+            "Use cutting fluid",
+            "Check for adequate tool support",
+            "Reduce feed rate",
+            "Verify material hardness is within range"
           ]
         }
       ]
