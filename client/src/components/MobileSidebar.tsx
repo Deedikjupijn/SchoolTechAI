@@ -92,7 +92,7 @@ export default function MobileSidebar({ isOpen, onClose, activeCategory }: Mobil
                   className={`w-full justify-start px-4 py-2 ${activeCategory === category.id ? 'text-primary' : 'text-neutral-700 hover:text-primary'}`}
                   onClick={onClose}
                 >
-                  <MaterialIcon name={category.icon} className="mr-2" />
+                  <MaterialIcon name={category.icon} className="mr-2" fallback="category" />
                   {category.name}
                 </Button>
               </Link>

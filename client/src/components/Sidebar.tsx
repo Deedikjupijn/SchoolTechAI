@@ -43,7 +43,7 @@ export default function Sidebar({ activeCategory }: SidebarProps) {
                 variant="ghost"
                 className={`w-full justify-start px-4 py-2 ${activeCategory === category.id ? 'text-primary' : 'text-neutral-700 hover:text-primary'}`}
               >
-                <MaterialIcon name={category.icon} className="mr-2" />
+                <MaterialIcon name={category.icon} className="mr-2" fallback="category" />
                 {category.name}
               </Button>
             </Link>

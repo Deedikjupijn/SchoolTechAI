@@ -51,9 +51,9 @@ export default function DeviceInfoPanel({ device, isLoading }: DeviceInfoPanelPr
     <div className="w-full h-full overflow-y-auto md:border-r border-neutral-100">
       <div className="p-6 max-w-3xl mx-auto">
         <div className="flex items-center mb-4">
-          <span className="material-icons text-primary p-2 bg-primary bg-opacity-20 rounded-full">
-            {device.icon}
-          </span>
+          <div className="p-2 bg-blue-100 rounded-full">
+            <MaterialIcon name={device.icon} className="text-primary" fallback="construction" />
+          </div>
           <h2 className="text-2xl font-medium ml-3">{device.name}</h2>
         </div>
         

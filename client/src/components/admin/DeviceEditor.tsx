@@ -113,11 +113,13 @@ export default function DeviceEditor({
     return requirements.map(requirement => ({ requirement }));
   };
 
-  const convertTroubleshootingToFormArray = (troubleshooting: any[] | undefined) => {
-    if (!troubleshooting || troubleshooting.length === 0) return [{ issue: "", solutions: [""] }];
-    return troubleshooting.map(item => ({
-      issue: item.issue,
-      solutions: item.solutions
+  const convertTroubleshootingToFormArray = (troubleshooting: unknown) => {
+    const items = Array.isArray(troubleshooting) ? troubleshooting : [];
+    if (items.length === 0) return [{ issue: "", solutions: [""] }];
+    
+    return items.map((item: any) => ({
+      issue: item.issue || "",
+      solutions: Array.isArray(item.solutions) ? item.solutions : [""]
     }));
   };
 
@@ -177,13 +179,14 @@ export default function DeviceEditor({
     name: "materials"
   });
 
+  // Workaround for the typed safety requirements
   const {
     fields: safetyFields,
     append: appendSafety,
     remove: removeSafety
   } = useFieldArray({
     control: form.control,
-    name: "safetyRequirements"
+    name: "safetyRequirements" as any
   });
 
   const {
@@ -208,7 +211,7 @@ export default function DeviceEditor({
   const getTroubleshootingSolutionsArray = (index: number) => {
     return useFieldArray({
       control: form.control,
-      name: `troubleshooting.${index}.solutions`
+      name: `troubleshooting.${index}.solutions` as any
     });
   };
 
@@ -579,7 +582,7 @@ export default function DeviceEditor({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => appendSafety("")}
+                  onClick={() => appendSafety("" as any)}
                 >
                   <MaterialIcon name="add" className="h-4 w-4 mr-2" />
                   Add Safety Requirement
@@ -739,7 +742,7 @@ export default function DeviceEditor({
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => appendSolution("")}
+                        onClick={() => appendSolution("" as any)}
                         className="mt-1"
                       >
                         <MaterialIcon name="add" className="h-4 w-4 mr-2" />
